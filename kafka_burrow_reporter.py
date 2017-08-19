@@ -1,6 +1,6 @@
 from __future__ import print_function
 import argparse
-import httplib
+import http.client
 import json
 import re
 
@@ -51,7 +51,7 @@ def get_consumer_lag_status_from_burrow(conn, cluster, consumer):
 
 
 def fetch_consumer_lags_from_burrow(host, port):
-    conn = httplib.HTTPConnection(host, port)
+    conn = http.client.HTTPConnection(host, port)
     consumer_lags = []
 
     for cluster in get_clusters_from_burrow(conn):
