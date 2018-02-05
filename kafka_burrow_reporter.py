@@ -13,15 +13,15 @@ import re
 def get_http_response(conn, path):
     conn.request("GET", path)
     response = conn.getresponse()
-    assert response.status == 200
+    assert (response.status == 200 or response.status == 404) 
     return response.read()
 
 
 def get_clusters_from_burrow(conn):
-    path="/v2/kafka"
+    path="/v3/kafka"
     #print(path)
 
-    response = json.loads(get_http_response(conn, path))
+    response = json.loads(get_http_response(conn, path).decode('utf-8'))
     if 'clusters' not in response:
         return []
 
@@ -29,10 +29,10 @@ def get_clusters_from_burrow(conn):
 
 
 def get_consumers_from_burrow(conn, cluster):
-    path="/v2/kafka/{}/consumer".format(cluster)
+    path="/v3/kafka/{}/consumer".format(cluster)
     #print(path)
 
-    response = json.loads(get_http_response(conn, path))
+    response = json.loads(get_http_response(conn, path).decode('utf-8'))
     if 'consumers' not in response:
         return []
 
@@ -40,13 +40,16 @@ def get_consumers_from_burrow(conn, cluster):
 
 
 def get_consumer_lag_status_from_burrow(conn, cluster, consumer):
-    path="/v2/kafka/{}/consumer/{}/lag".format(cluster, consumer)
+    path="/v3/kafka/{}/consumer/{}/lag".format(cluster, consumer)
     #print(path)
 
-    response = json.loads(get_http_response(conn, path))
+    response = json.loads(get_http_response(conn, path).decode('utf-8'))
     if 'status' not in response:
         return {}
-
+    
+    if 'status' not in response['status'] or response['status']['status'] == 'NOTFOUND':
+        return {}
+    
     return response['status']
 
 
