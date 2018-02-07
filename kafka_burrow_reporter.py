@@ -45,10 +45,10 @@ def get_consumer_lag_status_from_burrow(conn, cluster, consumer):
 
     response = json.loads(get_http_response(conn, path).decode('utf-8'))
     if 'status' not in response:
-        return {}
+        return None
     
     if 'status' not in response['status'] or response['status']['status'] == 'NOTFOUND':
-        return {}
+        return None
     
     return response['status']
 
@@ -59,7 +59,9 @@ def fetch_consumer_lags_from_burrow(host, port):
 
     for cluster in get_clusters_from_burrow(conn):
         for consumer in get_consumers_from_burrow(conn, cluster):
-            consumer_lags.append(get_consumer_lag_status_from_burrow(conn, cluster, consumer))
+            consumer_lag = get_consumer_lag_status_from_burrow(conn, cluster, consumer)
+            if not consumer_lag is None:
+                consumer_lags.append(consumer_lag)
 
     conn.close()
     return consumer_lags
