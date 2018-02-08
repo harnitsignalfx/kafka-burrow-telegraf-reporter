@@ -130,11 +130,15 @@ def translate_lag_data(lag_data):
     # kafka.consumer.tp.lag
     tp_lag_measurement = 'kafka.consumer.tp.lag'
     for tp_lag_data in lag_data['partitions']:
-        #print("tp_lag_data: {}".format(tp_lag_data))
+        # print("tp_lag_data: {}".format(tp_lag_data))        
         tg_lag_tags = lag_tags + ',' + get_formated_str(tp_lag_data, ['topic', 'partition'])
-        tg_lag_fields = get_formated_str(tp_lag_data['start'], ['lag', 'max_offset', 'offset', 'timestamp'], 'start.') + ',' + \
-            get_formated_str(tp_lag_data['end'], ['lag', 'max_offset', 'offset', 'timestamp'], 'end.')
-        metrics.append("{},{} {}".format(tp_lag_measurement, tg_lag_tags, tg_lag_fields))
+#        tg_lag_fields = get_formated_str(tp_lag_data['start'], ['lag', 'max_offset', 'offset', 'timestamp'], 'start.') + ','
+        # print("tg_lag_fields: {},{}".format(tp_lag_data['start'], tp_lag_data['end']))
+        if tp_lag_data['start'] is not None and tp_lag_data['end'] is not None:
+            tg_lag_fields = get_formated_str(tp_lag_data['start'], ['lag', 'offset', 'timestamp'], 'start.') + ','
+#            tg_lag_fields = tg_lag_fields + get_formated_str(tp_lag_data['end'], ['lag', 'max_offset', 'offset', 'timestamp'], 'end.')
+            tg_lag_fields = tg_lag_fields + get_formated_str(tp_lag_data['end'], ['lag', 'offset', 'timestamp'], 'end.')
+            metrics.append("{},{} {}".format(tp_lag_measurement, tg_lag_tags, tg_lag_fields))
 
     return metrics
 
